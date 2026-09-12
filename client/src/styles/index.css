@@ -1,0 +1,194 @@
+@import "tailwindcss";
+
+/* ==========================================================================
+   FutureHub Design System — Academic-Tech Design Tokens
+   Philosophy: Clarity before decoration.
+   ========================================================================== */
+
+:root {
+  --color-background: #f8fafc;
+  --color-surface: #ffffff;
+  --color-surface-muted: #f1f5f9;
+  --color-surface-subtle: #f8fafc;
+  
+  --color-primary: #2563eb;
+  --color-primary-hover: #1d4ed8;
+  --color-primary-light: #eff6ff;
+  --color-primary-border: #bfdbfe;
+
+  --color-dark: #0f172a;
+  --color-dark-surface: #1e293b;
+  --color-dark-border: #334155;
+
+  --color-text-main: #0f172a;
+  --color-text-secondary: #475569;
+  --color-text-muted: #64748b;
+  --color-text-subtle: #94a3b8;
+
+  --color-border: #e2e8f0;
+  --color-border-hover: #cbd5e1;
+
+  --color-success: #10b981;
+  --color-success-light: #ecfdf5;
+  --color-success-border: #a7f3d0;
+
+  --color-warning: #f59e0b;
+  --color-warning-light: #fffbeb;
+  --color-warning-border: #fde68a;
+
+  --color-danger: #ef4444;
+  --color-danger-light: #fef2f2;
+  --color-danger-border: #fecaca;
+
+  /* Restrained Modern Border Radii */
+  --radius-button: 10px;
+  --radius-input: 10px;
+  --radius-card: 16px;
+  --radius-surface: 20px;
+  --radius-pill: 9999px;
+
+  /* Subtle Layered Shadows */
+  --shadow-subtle: 0 1px 3px 0 rgba(15, 23, 42, 0.04), 0 1px 2px -1px rgba(15, 23, 42, 0.04);
+  --shadow-card: 0 4px 6px -1px rgba(15, 23, 42, 0.05), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --shadow-elevated: 0 10px 15px -3px rgba(15, 23, 42, 0.06), 0 4px 6px -4px rgba(15, 23, 42, 0.04);
+}
+
+/* Global Reset & Base Typography */
+html {
+  scroll-behavior: smooth;
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-background);
+  color: var(--color-text-main);
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Default links reset: remove ugly browser blue underlines */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Focus outline for accessibility */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Interactive touch targets */
+button, 
+input, 
+select {
+  font-family: inherit;
+}
+
+/* Reduced motion preference support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* ==========================================================================
+   Micro-interactions & Precision Aesthetics
+   ========================================================================== */
+
+.transition-micro {
+  transition: all 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card-interactive {
+  transition: transform 180ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 180ms cubic-bezier(0.16, 1, 0.3, 1), border-color 180ms ease;
+}
+
+.card-interactive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+}
+
+/* Double-bezel hardware container technique */
+.bezel-outer {
+  background: rgba(15, 23, 42, 0.03);
+  border: 1px solid rgba(15, 23, 42, 0.06);
+  padding: 6px;
+  border-radius: 20px;
+}
+
+.bezel-inner {
+  background: #ffffff;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 14px;
+  box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.9), 0 1px 3px 0 rgba(15, 23, 42, 0.03);
+}
+
+/* ==========================================================================
+   Print / Academic Career Report Stylesheet
+   ========================================================================== */
+@media print {
+  nav,
+  aside,
+  header,
+  footer,
+  button,
+  .no-print,
+  [role="status"] {
+    display: none !important;
+  }
+
+  body, html {
+    background: #ffffff !important;
+    color: #0f172a !important;
+    font-size: 11pt !important;
+  }
+
+  main, .max-w-7xl, .max-w-4xl, .max-w-6xl {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  div[class*="rounded-"] {
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important;
+    break-inside: avoid;
+  }
+
+  .overflow-hidden, .overflow-y-auto, .overflow-x-auto {
+    overflow: visible !important;
+    max-height: none !important;
+  }
+}
+
