@@ -1,3 +1,6 @@
+#node_module/
+.vite/
+dist/
 # Python bytecode
 __pycache__/
 *.py[cod]
