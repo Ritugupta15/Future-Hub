@@ -12,7 +12,7 @@ FutureHub is an academic-tech career discovery platform engineered for Computer 
 - **Authentication & Multi-Tenant Security**: Stateless JSON Web Tokens (JWT) with bcrypt-hashed passwords. Strict server-side Anti-IDOR / Anti-BOLA enforcement via verified JWT claims (`req.user.id`).
 - **CV / Resume Assisted Extraction**: Real text stream parsing for `.pdf` and `.docx` using `pdf-parse` and `mammoth`. Deterministic catalog matching with an **Assisted Review Modal** (Accept, Edit, Ignore) that prohibits silent profile mutations.
 - **Single Source of Truth**: Unified `UserDataContext` synchronizing profiles, assessments, bookmarks, roadmap milestone progress, and active CVs across all application pages without state loss.
-- **Automated Verification**: 44 / 44 automated Jest tests passing across 5 test suites (100% pass rate) and 12 end-to-end live server checks.
+- **Automated Verification**: 57 / 57 automated Jest tests passing across 6 test suites (100% pass rate) and end-to-end API verification.
 
 ---
 
@@ -35,29 +35,72 @@ FutureHub is an academic-tech career discovery platform engineered for Computer 
 
 ---
 
-## 3. Directory Structure
+## 3. Directory Structure (Production MVP Format)
 
 ```text
-future_hub/
-├── client/                               # React 19 Frontend (Vite + TypeScript)
-│   ├── src/
-│   │   ├── api/                          # Unified typed API client
-│   │   ├── components/                   # AppShell, CommandPalette, ResumeUploadCard, UI
-│   │   ├── context/                      # AuthContext, UserDataContext, ToastContext
-│   │   ├── pages/                        # Dashboard, Assessment, Explorer, Profile, etc.
-│   │   └── styles/                       # Atomic tokens, double bezel, and print CSS
-│   └── package.json
+Future-Hub/
+├── client/                               # Modern React 19 Frontend (Vite + TypeScript)
+│   ├── public/                           # Static brand assets (favicon, logo)
+│   ├── src/                              # Client source code
+│   │   ├── api/                          # Centralized Axios/fetch HTTP client
+│   │   ├── assets/                       # Images, illustrations, and logos
+│   │   ├── components/                   # Reusable UI & business widgets
+│   │   │   └── ui/                       # Atomic primitives (Button, Card, Badge, Input, etc.)
+│   │   ├── context/                      # Global state (AuthContext, UserDataContext, ToastContext)
+│   │   ├── layouts/                      # Layout wrappers (MainLayout, DashboardLayout, SmartPortal)
+│   │   ├── pages/                        # Route pages (Dashboard, Assessment, Profile, Explorer, etc.)
+│   │   ├── styles/                       # Tailwind CSS & design tokens
+│   │   ├── types/                        # Client-side TypeScript contracts
+│   │   ├── App.tsx                       # Root routing and application composition
+│   │   ├── main.tsx                      # React DOM mount entrypoint
+│   │   └── vite-env.d.ts                 # Vite environment typings
+│   ├── index.html                        # SPA HTML root entrypoint
+│   ├── package.json                      # Client dependencies & scripts
+│   ├── tsconfig.json                     # Client TypeScript configuration
+│   └── vite.config.ts                    # Vite build & reverse-proxy configuration
 │
-├── server/                               # Node.js 24 + Express Backend (TypeScript)
-│   ├── src/
-│   │   ├── database/                     # Schema SQL, Native SQLite connection, Seeding
-│   │   ├── middleware/                   # JWT Auth middleware (Anti-IDOR)
-│   │   ├── routes/                       # Auth, Profile, Resume, Assessment, Careers
-│   │   └── services/                     # Recommendation, User, Resume services
-│   ├── tests/                            # 5 test suites (44 tests, 100% pass)
-│   └── package.json
+├── server/                               # Scalable Express Backend (Node.js 24 + TypeScript)
+│   ├── src/                              # Server source code
+│   │   ├── database/                     # Database access, schema & seeder
+│   │   │   ├── db.ts                     # Native SQLite connection provider
+│   │   │   ├── schema.sql                # Relational SQL DDL (Users, Careers, Skills, etc.)
+│   │   │   └── seed.ts                   # 15-career benchmark catalog seeder
+│   │   ├── middleware/                   # Express middlewares (Auth, Anti-IDOR security)
+│   │   │   └── auth.middleware.ts        # Cryptographic JWT bearer token validator
+│   │   ├── routes/                       # REST API route controllers
+│   │   │   ├── assessment.routes.ts      # Assessment & recommendation endpoints
+│   │   │   ├── auth.routes.ts            # Registration & login endpoints
+│   │   │   ├── career.routes.ts          # Career exploration catalog endpoints
+│   │   │   ├── profile.routes.ts         # 6-subresource student profile endpoints
+│   │   │   ├── resume.routes.ts          # Resume upload & parsing endpoints
+│   │   │   ├── roadmap.routes.ts         # Milestone progression endpoints
+│   │   │   └── saved.routes.ts           # Saved career bookmark endpoints
+│   │   ├── services/                     # Business logic layer
+│   │   │   ├── auth.service.ts           # Password hashing & JWT issuance
+│   │   │   ├── career.service.ts         # Career retrieval & filtering
+│   │   │   ├── recommendation.service.ts # Mathematical recommendation engine
+│   │   │   ├── resume.service.ts         # PDF/DOCX text parsing & skill extraction
+│   │   │   └── user.service.ts           # User profiles & completeness calculation
+│   │   ├── types/                        # Backend TypeScript contracts
+│   │   ├── app.ts                        # Express application configuration & SPA static host
+│   │   └── server.ts                     # HTTP listener entrypoint
+│   ├── tests/                            # Automated Jest test suites (57 tests)
+│   ├── uploads/resumes/                  # Private secure storage for uploaded resumes
+│   ├── futurehub.db                      # SQLite database file
+│   ├── jest.config.js                    # Jest test runner configuration
+│   ├── package.json                      # Server dependencies & scripts
+│   └── tsconfig.json                     # Server TypeScript configuration
 │
-└── package.json                          # Orchestration scripts
+├── docs/                                 # Project Documentation & Academic Artifacts
+│   ├── ARCHITECTURE.md                   # Full architectural specification
+│   └── presentation_summary.md           # Bilingual viva defense guide (English + Hinglish)
+│
+├── .env.example                          # Environment variable template
+├── .gitignore                            # Production gitignore rules
+├── .node-version                         # Node.js LTS version specification (22.13.0)
+├── package.json                          # Monorepo root workspace orchestration
+├── README.md                             # Comprehensive project guide
+└── render.yaml                           # Infrastructure as Code (Render Web Service)
 ```
 
 ---
