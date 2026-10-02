@@ -1,34 +1,30 @@
-#node_module/
-.vite/
-dist/
-# Python bytecode
-__pycache__/
-*.py[cod]
-*$py.class
+# Node.js dependencies
+node_modules/
+.npm
+*.log
 
-# Virtual environments
-venv/
-env/
-.venv/
+# Build outputs
+dist/
+build/
+.vite/
 
 # Environment variables
 .env
 .env.local
+.env.*.local
 
-# SQLite instance database
-instance/*.db
-*.sqlite3
+# SQLite temporary journal files
+*.db-shm
+*.db-wal
+*.sqlite3-journal
 
-# Test and coverage artifacts
-.pytest_cache/
-.coverage
-htmlcov/
+# Uploaded user files (keep directory, ignore uploaded content)
+server/uploads/resumes/*
+!server/uploads/resumes/.gitkeep
 
-# OS specific
+# IDEs & System files
+.vscode/
+.idea/
 .DS_Store
 Thumbs.db
 desktop.ini
-
-# IDEs
-.vscode/
-.idea/

@@ -20,6 +20,16 @@ const resume_routes_js_1 = __importDefault(require("./routes/resume.routes.js"))
 const career_service_js_1 = require("./services/career.service.js");
 function createApp() {
     const app = (0, express_1.default)();
+    const configuredOrigins = process.env.FRONTEND_URL
+        ? process.env.FRONTEND_URL.split(',').map((u) => u.trim().replace(/\/$/, ''))
+        : [];
+    const defaultOrigins = [
+        'http://localhost:5173',
+        'http://127.0.0.1:5173',
+        'http://localhost:5000',
+        'http://127.0.0.1:5000'
+    ];
+    const allowedOrigins = [...new Set([...configuredOrigins, ...defaultOrigins])];
     // 1. Security Headers (Helmet)
     app.use((0, helmet_1.default)({
         contentSecurityPolicy: {
@@ -29,27 +39,25 @@ function createApp() {
                 styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
                 fontSrc: ["'self'", "https://fonts.gstatic.com"],
                 imgSrc: ["'self'", "data:", "https:"],
-                connectSrc: ["'self'"]
+                connectSrc: ["'self'", ...configuredOrigins]
             }
         },
         frameguard: { action: 'deny' },
         noSniff: true
     }));
     // 2. CORS
-    const allowedOrigins = [
-        process.env.FRONTEND_URL || 'http://localhost:5173',
-        'http://127.0.0.1:5173',
-        'http://localhost:5000',
-        'http://127.0.0.1:5000'
-    ];
     app.use((0, cors_1.default)({
         origin: (origin, callback) => {
-            if (!origin || allowedOrigins.includes(origin)) {
-                callback(null, true);
+            if (!origin)
+                return callback(null, true);
+            const normalizedOrigin = origin.replace(/\/$/, '');
+            if (allowedOrigins.includes(normalizedOrigin)) {
+                return callback(null, true);
             }
-            else {
-                callback(null, true); // Permissive in local dev
+            if (process.env.NODE_ENV === 'production') {
+                return callback(new Error(`CORS blocked for origin: ${origin}`));
             }
+            callback(null, true); // Dev fallback
         },
         credentials: true,
         methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -73,7 +81,7 @@ function createApp() {
     app.use('/api/auth/register', authLimiter);
     app.use('/api/resume/upload', resumeLimiter);
     // 5. Health check & API Options
-    app.get('/api/health', (req, res) => {
+    app.get(['/health', '/api/health'], (req, res) => {
         res.status(200).json({ status: 'ok', service: 'FutureHub API', timestamp: new Date().toISOString() });
     });
     // Backward-compatible /api/options for existing contract

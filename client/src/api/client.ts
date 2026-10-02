@@ -19,7 +19,15 @@ import {
   ProfileCompletenessResult
 } from '../types';
 
-const API_BASE = '/api';
+const getApiBase = (): string => {
+  const envUrl = (import.meta as any).env?.VITE_API_URL;
+  if (envUrl && typeof envUrl === 'string' && envUrl.trim() !== '') {
+    return envUrl.trim().replace(/\/$/, '') + '/api';
+  }
+  return '/api';
+};
+
+const API_BASE = getApiBase();
 
 export class ApiError extends Error {
   status: number;

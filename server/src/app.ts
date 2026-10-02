@@ -17,6 +17,19 @@ import { CareerService } from './services/career.service.js';
 export function createApp(): Express {
   const app = express();
 
+  const configuredOrigins = process.env.FRONTEND_URL
+    ? process.env.FRONTEND_URL.split(',').map((u) => u.trim().replace(/\/$/, ''))
+    : [];
+
+  const defaultOrigins = [
+    'http://localhost:5173',
+    'http://127.0.0.1:5173',
+    'http://localhost:5000',
+    'http://127.0.0.1:5000'
+  ];
+
+  const allowedOrigins = [...new Set([...configuredOrigins, ...defaultOrigins])];
+
   // 1. Security Headers (Helmet)
   app.use(helmet({
     contentSecurityPolicy: {
@@ -26,7 +39,7 @@ export function createApp(): Express {
         styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
         fontSrc: ["'self'", "https://fonts.gstatic.com"],
         imgSrc: ["'self'", "data:", "https:"],
-        connectSrc: ["'self'"]
+        connectSrc: ["'self'", ...configuredOrigins]
       }
     },
     frameguard: { action: 'deny' },
@@ -34,20 +47,17 @@ export function createApp(): Express {
   }));
 
   // 2. CORS
-  const allowedOrigins = [
-    process.env.FRONTEND_URL || 'http://localhost:5173',
-    'http://127.0.0.1:5173',
-    'http://localhost:5000',
-    'http://127.0.0.1:5000'
-  ];
-
   app.use(cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(null, true); // Permissive in local dev
+      if (!origin) return callback(null, true);
+      const normalizedOrigin = origin.replace(/\/$/, '');
+      if (allowedOrigins.includes(normalizedOrigin)) {
+        return callback(null, true);
       }
+      if (process.env.NODE_ENV === 'production') {
+        return callback(new Error(`CORS blocked for origin: ${origin}`));
+      }
+      callback(null, true); // Dev fallback
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -76,7 +86,7 @@ export function createApp(): Express {
   app.use('/api/resume/upload', resumeLimiter);
 
   // 5. Health check & API Options
-  app.get('/api/health', (req: Request, res: Response) => {
+  app.get(['/health', '/api/health'], (req: Request, res: Response) => {
     res.status(200).json({ status: 'ok', service: 'FutureHub API', timestamp: new Date().toISOString() });
   });
 

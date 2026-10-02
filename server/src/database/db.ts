@@ -24,7 +24,16 @@ export function getDatabase(customPath?: string): DatabaseSync {
     return dbInstance;
   }
 
-  const dbPath = process.env.DATABASE_PATH || path.resolve(process.cwd(), 'futurehub.db');
+  let dbPath = process.env.DATABASE_PATH;
+  if (!dbPath) {
+    const candidatePaths = [
+      path.resolve(process.cwd(), 'server/futurehub.db'),
+      path.resolve(process.cwd(), 'futurehub.db'),
+      path.resolve(__dirname, '../../futurehub.db'),
+      path.resolve(__dirname, '../../../futurehub.db')
+    ];
+    dbPath = candidatePaths.find(p => fs.existsSync(p)) || path.resolve(process.cwd(), 'server/futurehub.db');
+  }
 
   if (dbPath !== ':memory:') {
     const parentDir = path.dirname(dbPath);

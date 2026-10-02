@@ -28,7 +28,16 @@ function getDatabase(customPath) {
     if (dbInstance) {
         return dbInstance;
     }
-    const dbPath = process.env.DATABASE_PATH || path_1.default.resolve(process.cwd(), 'futurehub.db');
+    let dbPath = process.env.DATABASE_PATH;
+    if (!dbPath) {
+        const candidatePaths = [
+            path_1.default.resolve(process.cwd(), 'server/futurehub.db'),
+            path_1.default.resolve(process.cwd(), 'futurehub.db'),
+            path_1.default.resolve(__dirname, '../../futurehub.db'),
+            path_1.default.resolve(__dirname, '../../../futurehub.db')
+        ];
+        dbPath = candidatePaths.find(p => fs_1.default.existsSync(p)) || path_1.default.resolve(process.cwd(), 'server/futurehub.db');
+    }
     if (dbPath !== ':memory:') {
         const parentDir = path_1.default.dirname(dbPath);
         if (!fs_1.default.existsSync(parentDir)) {

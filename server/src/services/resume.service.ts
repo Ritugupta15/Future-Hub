@@ -17,7 +17,15 @@ import {
 import { CareerService } from './career.service.js';
 import { UserService } from './user.service.js';
 
-export const RESUME_UPLOAD_DIR = path.resolve(process.cwd(), 'uploads/resumes');
+function resolveUploadDir(): string {
+  const candidates = [
+    path.resolve(process.cwd(), 'server/uploads/resumes'),
+    path.resolve(process.cwd(), 'uploads/resumes')
+  ];
+  return candidates.find(p => fs.existsSync(p)) || path.resolve(process.cwd(), 'server/uploads/resumes');
+}
+
+export const RESUME_UPLOAD_DIR = resolveUploadDir();
 
 // Ensure upload directory exists securely
 if (!fs.existsSync(RESUME_UPLOAD_DIR)) {

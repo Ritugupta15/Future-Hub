@@ -11,7 +11,14 @@ const mammoth_1 = __importDefault(require("mammoth"));
 const db_js_1 = require("../database/db.js");
 const career_service_js_1 = require("./career.service.js");
 const user_service_js_1 = require("./user.service.js");
-exports.RESUME_UPLOAD_DIR = path_1.default.resolve(process.cwd(), 'uploads/resumes');
+function resolveUploadDir() {
+    const candidates = [
+        path_1.default.resolve(process.cwd(), 'server/uploads/resumes'),
+        path_1.default.resolve(process.cwd(), 'uploads/resumes')
+    ];
+    return candidates.find(p => fs_1.default.existsSync(p)) || path_1.default.resolve(process.cwd(), 'server/uploads/resumes');
+}
+exports.RESUME_UPLOAD_DIR = resolveUploadDir();
 // Ensure upload directory exists securely
 if (!fs_1.default.existsSync(exports.RESUME_UPLOAD_DIR)) {
     fs_1.default.mkdirSync(exports.RESUME_UPLOAD_DIR, { recursive: true });
