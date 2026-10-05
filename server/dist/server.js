@@ -8,7 +8,8 @@ dotenv_1.default.config();
 const app_js_1 = require("./app.js");
 const db_js_1 = require("./database/db.js");
 const seed_js_1 = require("./database/seed.js");
-const PORT = process.env.PORT || 5000;
+const PORT = Number(process.env.PORT) || 5000;
+const HOST = '0.0.0.0';
 async function bootstrap() {
     try {
         const db = (0, db_js_1.getDatabase)();
@@ -20,10 +21,10 @@ async function bootstrap() {
             (0, seed_js_1.seedDatabase)(db);
         }
         const app = (0, app_js_1.createApp)();
-        const server = app.listen(PORT, () => {
+        const server = app.listen(PORT, HOST, () => {
             console.log(`=======================================================`);
-            console.log(` FutureHub REST API Server running on port ${PORT}`);
-            console.log(` Health check: http://localhost:${PORT}/api/health`);
+            console.log(` FutureHub Production Server running on ${HOST}:${PORT}`);
+            console.log(` Health check: http://${HOST}:${PORT}/api/health`);
             console.log(`=======================================================`);
         });
         const shutdown = () => {

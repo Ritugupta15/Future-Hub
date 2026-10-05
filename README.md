@@ -233,3 +233,80 @@ When presenting FutureHub to examiners:
 4. **Demonstrate State Continuity & Print Reporting**:
    - Toggle a roadmap milestone; navigate across Dashboard, Explorer, and Saved Careers to show synchronized state.
    - Click **Print Career Report** on Dashboard or **Print Pathway** on Career Detail to demonstrate academic print stylesheet formatting.
+
+---
+
+## 10. Render Deployment
+
+### Architecture
+FutureHub uses **Option A: One Unified Render Web Service**.
+
+**Why this architecture was selected:**
+- The Node.js 24 + Express server is engineered to serve both the `/api/*` REST endpoints and the compiled React 19 single-page application (`client/dist`) from a single web service.
+- **Benefits:**
+  - Zero cross-origin latency (same-origin requests).
+  - Eliminates CORS issues in production.
+  - Native SPA client-side routing fallback without requiring complex reverse proxy rules.
+  - Operates cleanly on Render's single free-tier Web Service instance.
+  - Fully automated via `render.yaml` Blueprint or manual dashboard setup.
+
+### Environment Variables
+
+| Variable Name | Required | Purpose | Example Format |
+| --- | --- | --- | --- |
+| `NODE_ENV` | Yes | Defines runtime environment | `production` |
+| `JWT_SECRET` | Yes | 256-bit secret key for signing student JWTs | `a8f9c2d1e4b5...` (32+ chars) |
+| `DATABASE_PATH` | No | Custom path for SQLite database file | `/var/data/futurehub.db` |
+| `FRONTEND_URL` | No | Additional CORS origins (if decoupled) | `https://myfrontend.com` |
+
+> **Note:** Render automatically assigns and injects the `PORT` environment variable (e.g. `10000`). FutureHub binds dynamically to `0.0.0.0:$PORT`.
+
+### Build & Start Commands
+
+- **Unified Build Command**: `npm run build:render`
+  - Installs server and client dependencies via npm workspaces.
+  - Compiles backend TypeScript (`tsc`).
+  - Bundles frontend React application (`vite build`).
+- **Unified Start Command**: `npm start`
+  - Runs `node server/dist/server.js`, binding to `0.0.0.0:$PORT`.
+- **Frontend Build Command** *(if built separately)*: `npm run build:client`
+- **Frontend Publish Directory** *(if served statically)*: `client/dist`
+
+### Render Dashboard Settings (Manual Setup)
+
+If deploying manually without Blueprint:
+- **Service Type**: `Web Service`
+- **Environment**: `Node`
+- **Root Directory**: *(Leave empty / project root)*
+- **Build Command**: `npm run build:render`
+- **Start Command**: `npm start`
+- **Health Check Path**: `/api/health`
+- **Auto-Deploy**: `Yes`
+
+### Deployment Steps
+
+1. **Push Repository**: Ensure all latest commits are pushed to your GitHub repository on `main`.
+2. **Open Render**: Navigate to [dashboard.render.com](https://dashboard.render.com).
+3. **Create Service**: Click **New +** &rarr; **Blueprint** (or **Web Service**).
+4. **Select Repository**: Connect and select `Ritugupta15/Future-Hub`.
+5. **Blueprint Detection**: Render reads `render.yaml` automatically and configures the `futurehub` web service and auto-generates a secure `JWT_SECRET`.
+6. **Manual Configuration (Alternative)**:
+   - If setting up manually, enter the Build and Start commands from above.
+   - Under **Environment Variables**, add `NODE_ENV=production` and `JWT_SECRET=[random 32-character string]`.
+7. **Deploy**: Click **Apply** or **Create Web Service**.
+8. **Inspect Logs**: Check build and deploy logs until:
+   ```text
+   FutureHub Production Server running on 0.0.0.0:10000
+   Health check: http://0.0.0.0:10000/api/health
+   ```
+9. **Verify Public URL**: Open your allocated Render URL (`https://<service-name>.onrender.com`).
+10. **Test Health Endpoint**: Verify `https://<service-name>.onrender.com/api/health` returns `{"status":"ok"}`.
+11. **Test Authentication**: Register a test account and log in.
+12. **Test Recommendation & Career Explorer**: Submit an assessment and view the calculated recommendation match scores and career roadmaps.
+
+### Database Persistence & Production Notice
+- FutureHub uses native SQLite (`node:sqlite`) with WAL mode.
+- Render Web Services on the free plan have an **ephemeral disk**; local file modifications (new users or uploaded resumes) reset when the free instance sleeps or restarts.
+- **For Permanent Production Persistence:**
+  1. Attach a **Render Persistent Disk** (e.g. mounted at `/var/data`) and set `DATABASE_PATH=/var/data/futurehub.db`.
+  2. Or, for enterprise multi-instance horizontal scaling, connect to a managed Render PostgreSQL instance.
